@@ -1,4 +1,4 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,37 +8,83 @@ dataSources:
     source:
       address: "0x18dd1dda037B009F7C1024dDdD58e4Fe9F960ac7"
       abi: LoopringV3
+      startBlock: 9206856
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - ExchangeStakeDeposited
-        - ExchangeStakeWithdrawn
-        - ExchangeStakeBurned
-        - ProtocolFeeStakeDeposited
-        - ProtocolFeeStakeWithdrawn
-        - SettingsUpdated
         - ExchangeInitialized
-        - OwnershipTransferred
+        - InterfaceImplementation
       abis:
         - name: LoopringV3
           file: ./abis/LoopringV3.json
       eventHandlers:
-        - event: ExchangeStakeDeposited(indexed uint256,uint256)
-          handler: handleExchangeStakeDeposited
-        - event: ExchangeStakeWithdrawn(indexed uint256,uint256)
-          handler: handleExchangeStakeWithdrawn
-        - event: ExchangeStakeBurned(indexed uint256,uint256)
-          handler: handleExchangeStakeBurned
-        - event: ProtocolFeeStakeDeposited(indexed uint256,uint256)
-          handler: handleProtocolFeeStakeDeposited
-        - event: ProtocolFeeStakeWithdrawn(indexed uint256,uint256)
-          handler: handleProtocolFeeStakeWithdrawn
-        - event: SettingsUpdated(uint256)
-          handler: handleSettingsUpdated
         - event: ExchangeInitialized(indexed uint256,indexed address,indexed address,address,bool)
           handler: handleExchangeInitialized
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
       file: ./src/mapping.ts
+templates:
+  - name: ERC20
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/index.ts
+      entities:
+        - Exchange
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+  - name: ExchangeV3
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: ExchangeV3
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: ./src/index.ts
+      entities:
+        - Exchange
+      abis:
+        - name: ExchangeV3
+          file: ./abis/ExchangeV3.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: AccountCreated(indexed address,indexed uint24,uint256,uint256)
+          handler: handleAccountCreated
+        - event: AccountUpdated(indexed address,indexed uint24,uint256,uint256)
+          handler: handleAccountUpdated
+        - event: BlockCommitted(indexed uint256,indexed bytes32)
+          handler: handleBlockCommitted
+        - event: TokenRegistered(indexed address,indexed uint16)
+          handler: handleTokenRegistered
+  # + AccountCreated(indexed address,indexed uint24,uint256,uint256)
+  # + AccountUpdated(indexed address,indexed uint24,uint256,uint256)
+  # + AddressWhitelistChanged(indexed uint256,address,address)
+  # + BlockCommitted(indexed uint256,indexed bytes32)
+  # + BlockFeeWithdrawn(indexed uint256,uint256)
+  # + BlockFinalized(indexed uint256)
+  # + BlockVerified(indexed uint256)
+  # - Cloned(indexed address)
+  # + DepositRequested(indexed uint256,indexed uint24,indexed uint16,uint96,uint256,uint256)
+  # + FeesUpdated(indexed uint256,uint256,uint256,uint256,uint256)
+  # + OperatorChanged(indexed uint256,address,address)
+  # - OwnershipTransferred(indexed address,indexed address)
+  # + ProtocolFeesUpdated(uint8,uint8,uint8,uint8)
+  # + Revert(indexed uint256)
+  # - Shutdown(uint256)
+  # - TokenNotOwnedByUsersWithdrawn(address,address,address,uint256)
+  # + TokenRegistered(indexed address,indexed uint16)
+  # + WithdrawalCompleted(indexed uint24,indexed uint16,address,uint96)
+  # + WithdrawalFailed(indexed uint24,indexed uint16,address,uint96)
+  # + WithdrawalRequested(indexed uint256,indexed uint24,indexed uint16,uint96)

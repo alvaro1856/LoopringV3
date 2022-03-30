@@ -1,0 +1,70 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: LoopringV3
+    network: mainnet
+    source:
+      address: "0x18dd1dda037B009F7C1024dDdD58e4Fe9F960ac7"
+      abi: LoopringV3
+      startBlock: 9206856
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - ExchangeInitialized
+        - InterfaceImplementation
+      abis:
+        - name: LoopringV3
+          file: LoopringV3/abis/LoopringV3.json
+      eventHandlers:
+        - event: ExchangeInitialized(indexed uint256,indexed address,indexed address,address,bool)
+          handler: handleExchangeInitialized
+      file: LoopringV3/LoopringV3.wasm
+templates:
+  - name: ERC20
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: ERC20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: templates/ERC20/ERC20.wasm
+      entities:
+        - Exchange
+      abis:
+        - name: ERC20
+          file: ERC20/abis/ERC20.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+  - name: ExchangeV3
+    kind: ethereum/contract
+    network: mainnet
+    source:
+      abi: ExchangeV3
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: templates/ERC20/ERC20.wasm
+      entities:
+        - Exchange
+      abis:
+        - name: ExchangeV3
+          file: ExchangeV3/abis/ExchangeV3.json
+        - name: ERC20
+          file: ExchangeV3/abis/ERC20.json
+      eventHandlers:
+        - event: AccountCreated(indexed address,indexed uint24,uint256,uint256)
+          handler: handleAccountCreated
+        - event: AccountUpdated(indexed address,indexed uint24,uint256,uint256)
+          handler: handleAccountUpdated
+        - event: BlockCommitted(indexed uint256,indexed bytes32)
+          handler: handleBlockCommitted
+        - event: TokenRegistered(indexed address,indexed uint16)
+          handler: handleTokenRegistered
