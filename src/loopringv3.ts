@@ -1,6 +1,6 @@
+import { ExchangeV3 } from "../generated/templates/ExchangeV3/ExchangeV3";
 import { ExchangeInitialized } from "../generated/LoopringV3/LoopringV3";
 import { BigInt } from "@graphprotocol/graph-ts";
-import { ExchangeV3 } from "../generated/templates/ExchangeV3/ExchangeV3";
 import {
     getOrCreateExchange
 } from "../src/helpers";
